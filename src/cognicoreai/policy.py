@@ -20,14 +20,18 @@ class BasePolicy(abc.ABC):
     """Abstract policy interface for runtime action validation."""
 
     @abc.abstractmethod
-    def evaluate(self, action: Dict[str, Any], context: Optional[Dict[str, Any]] = None) -> PolicyDecision:
+    def evaluate(
+        self, action: Dict[str, Any], context: Optional[Dict[str, Any]] = None
+    ) -> PolicyDecision:
         raise NotImplementedError
 
 
 class AllowAllPolicy(BasePolicy):
     """Default policy that allows all actions."""
 
-    def evaluate(self, action: Dict[str, Any], context: Optional[Dict[str, Any]] = None) -> PolicyDecision:
+    def evaluate(
+        self, action: Dict[str, Any], context: Optional[Dict[str, Any]] = None
+    ) -> PolicyDecision:
         return PolicyDecision(allowed=True)
 
 
@@ -37,7 +41,9 @@ class DenyByCapabilityPolicy(BasePolicy):
     def __init__(self, blocked_capabilities: Set[str]):
         self._blocked_capabilities = blocked_capabilities
 
-    def evaluate(self, action: Dict[str, Any], context: Optional[Dict[str, Any]] = None) -> PolicyDecision:
+    def evaluate(
+        self, action: Dict[str, Any], context: Optional[Dict[str, Any]] = None
+    ) -> PolicyDecision:
         capability = action.get("capability") or action.get("tool_name")
         if capability in self._blocked_capabilities:
             return PolicyDecision(

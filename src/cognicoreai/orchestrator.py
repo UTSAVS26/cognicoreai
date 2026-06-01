@@ -51,7 +51,13 @@ class V2MultiAgentRuntime:
     def events(self) -> List[RuntimeEvent]:
         return self._events.copy()
 
-    def _emit(self, message_type: str, correlation_id: str, payload: Dict[str, Any], causation_id: Optional[str] = None) -> str:
+    def _emit(
+        self,
+        message_type: str,
+        correlation_id: str,
+        payload: Dict[str, Any],
+        causation_id: Optional[str] = None,
+    ) -> str:
         env = EventEnvelope(
             message_type=message_type,  # type: ignore[arg-type]
             source="v2.runtime",
@@ -87,9 +93,17 @@ class V2MultiAgentRuntime:
             for tool in self.tools
         ]
 
-    def _execute_role(self, role_name: str, role_prompt: str, correlation_id: str, input_text: Optional[str] = None) -> str:
+    def _execute_role(
+        self,
+        role_name: str,
+        role_prompt: str,
+        correlation_id: str,
+        input_text: Optional[str] = None,
+    ) -> str:
         assign_id = self._emit("task.assigned", correlation_id, {"role": role_name})
-        start_id = self._emit("task.started", correlation_id, {"role": role_name}, causation_id=assign_id)
+        start_id = self._emit(
+            "task.started", correlation_id, {"role": role_name}, causation_id=assign_id
+        )
 
         if input_text:
             self.memory.add_message({"role": "user", "content": input_text})
@@ -101,7 +115,9 @@ class V2MultiAgentRuntime:
             }
         )
 
-        response = self.llm.get_completion(self.memory.get_history(), self._tool_definitions())
+        response = self.llm.get_completion(
+            self.memory.get_history(), self._tool_definitions()
+        )
         self.memory.add_message(response.raw_response_message)
 
         if response.tool_calls:
@@ -129,14 +145,22 @@ class V2MultiAgentRuntime:
                     self._emit(
                         "policy.blocked",
                         correlation_id,
-                        {"role": role_name, "tool": tc.function_name, "reason": tool_result.content},
+                        {
+                            "role": role_name,
+                            "tool": tc.function_name,
+                            "reason": tool_result.content,
+                        },
                         causation_id=tool_event_id,
                     )
                 else:
                     self._emit(
                         "tool.call.failed",
                         correlation_id,
-                        {"role": role_name, "tool": tc.function_name, "error": tool_result.error_type},
+                        {
+                            "role": role_name,
+                            "tool": tc.function_name,
+                            "error": tool_result.error_type,
+                        },
                         causation_id=tool_event_id,
                     )
 
@@ -157,7 +181,12 @@ class V2MultiAgentRuntime:
         else:
             out = response.content or ""
 
-        self._emit("task.completed", correlation_id, {"role": role_name, "output": out}, causation_id=start_id)
+        self._emit(
+            "task.completed",
+            correlation_id,
+            {"role": role_name, "output": out},
+            causation_id=start_id,
+        )
         return out
 
     def chat(self, user_input: str) -> str:
@@ -167,7 +196,10 @@ class V2MultiAgentRuntime:
         if self.config.mode == "supervisor":
             return self._execute_role(
                 "supervisor",
-                "Decompose the problem and produce a final answer. Use tools if needed.",
+                (
+                    "Decompose the problem and produce a final answer. "
+                    "Use tools if needed."
+                ),
                 correlation_id,
                 input_text=user_input,
             )
@@ -181,7 +213,10 @@ class V2MultiAgentRuntime:
             )
             self._execute_role(
                 "executor",
-                "Execute the current plan and compute the solution with available tools.",
+                (
+                    "Execute the current plan and compute the solution "
+                    "with available tools."
+                ),
                 correlation_id,
             )
             return self._execute_role(

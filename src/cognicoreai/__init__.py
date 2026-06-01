@@ -39,10 +39,10 @@ from .simulation import (
     Simulator,
     ToolUsedAssertion,
 )
+from .tool_runtime import ToolExecutionResult, ToolRuntime
 
 # From the tools module
 from .tools import CalculatorTool, Tool
-from .tool_runtime import ToolExecutionResult, ToolRuntime
 
 # Use __all__ to explicitly define the public API of the package.
 # This tells tools like linters and IDEs which names are meant to be

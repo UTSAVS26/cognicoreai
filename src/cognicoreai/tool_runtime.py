@@ -8,7 +8,6 @@ from typing import Dict, List, Literal, Optional
 from .policy import BasePolicy
 from .tools import Tool
 
-
 ToolStatus = Literal["completed", "failed", "blocked"]
 
 
@@ -29,7 +28,9 @@ class ToolRuntime:
         self._tools: Dict[str, Tool] = {tool.name: tool for tool in tools}
         self._policy = policy
 
-    def execute(self, tool_name: str, tool_input: str, retry_budget: int = 0) -> ToolExecutionResult:
+    def execute(
+        self, tool_name: str, tool_input: str, retry_budget: int = 0
+    ) -> ToolExecutionResult:
         decision = self._policy.evaluate(
             {"type": "tool_call", "tool_name": tool_name, "capability": tool_name}
         )

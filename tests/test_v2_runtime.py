@@ -24,17 +24,26 @@ class TestV2Runtime(unittest.TestCase):
             LLMResponse(
                 content="Plan: compute then verify.",
                 tool_calls=None,
-                raw_response_message={"role": "assistant", "content": "Plan: compute then verify."},
+                raw_response_message={
+                    "role": "assistant",
+                    "content": "Plan: compute then verify.",
+                },
             ),
             LLMResponse(
                 content="Execution says answer is 9.",
                 tool_calls=None,
-                raw_response_message={"role": "assistant", "content": "Execution says answer is 9."},
+                raw_response_message={
+                    "role": "assistant",
+                    "content": "Execution says answer is 9.",
+                },
             ),
             LLMResponse(
                 content="Final answer: 9.",
                 tool_calls=None,
-                raw_response_message={"role": "assistant", "content": "Final answer: 9."},
+                raw_response_message={
+                    "role": "assistant",
+                    "content": "Final answer: 9.",
+                },
             ),
         ]
         self.mock_llm.get_completion.side_effect = responses

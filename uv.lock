@@ -227,7 +227,7 @@ wheels = [
 
 [[package]]
 name = "cognicoreai"
-version = "1.0.1"
+version = "2.0.0a1"
 source = { editable = "." }
 dependencies = [
     { name = "openai" },
