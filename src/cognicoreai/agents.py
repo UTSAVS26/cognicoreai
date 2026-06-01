@@ -7,11 +7,13 @@ to be plugged in without changing the agent's reasoning logic.
 """
 
 import json
-from typing import List
+from typing import List, Optional
 
 # Import the new LLM abstraction and the established components
 from cognicoreai.llms import BaseLLM
 from cognicoreai.memory import BaseMemory
+from cognicoreai.orchestrator import V2Config, V2MultiAgentRuntime
+from cognicoreai.policy import AllowAllPolicy, BasePolicy
 from cognicoreai.tools import Tool
 
 
@@ -67,6 +69,9 @@ class Agent:
         memory: BaseMemory,
         tools: List[Tool],
         system_prompt: str = "You are a helpful assistant.",
+        mode: str = "v1",
+        v2_config: Optional[V2Config] = None,
+        policy: Optional[BasePolicy] = None,
     ):
         """
         Initializes the Agent with LLM-agnostic components.
@@ -82,17 +87,40 @@ class Agent:
         self.llm = llm
         self.memory = memory
         self.system_prompt = system_prompt
+        self.mode = mode
         self.tool_handler = ToolHandler(tools)
+        self._v2_runtime: Optional[V2MultiAgentRuntime] = None
 
         # Clear memory and set the initial system prompt
         self.memory.clear()
         self.memory.add_message({"role": "system", "content": self.system_prompt})
+
+        if self.mode != "v1":
+            config = v2_config or V2Config(mode=self.mode)  # type: ignore[arg-type]
+            self._v2_runtime = V2MultiAgentRuntime(
+                llm=llm,
+                memory=memory,
+                tools=tools,
+                system_prompt=system_prompt,
+                config=config,
+                policy=policy or AllowAllPolicy(),
+            )
+
+    @property
+    def events(self):
+        """Returns V2 runtime events when running in V2 mode."""
+        if not self._v2_runtime:
+            return []
+        return self._v2_runtime.events
 
     def chat(self, user_input: str) -> str:
         """
         The main method for interacting with the agent. The logic now uses the
         standardized LLMResponse object.
         """
+        if self._v2_runtime:
+            return self._v2_runtime.chat(user_input)
+
         self.memory.add_message({"role": "user", "content": user_input})
 
         messages = self.memory.get_history()

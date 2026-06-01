@@ -13,13 +13,13 @@ as the `Message` type.
 """
 
 import abc
-from typing import List, Literal, TypedDict
+from typing import Any, Dict, List, Literal, TypedDict
 
 
 # Define a consistent, typed structure for all messages stored in memory.
 # Using a TypedDict provides clarity and enables static analysis tools to
 # catch potential bugs related to message format.
-class Message(TypedDict):
+class Message(TypedDict, total=False):
     """
     Represents a single message in the conversation history.
 
@@ -35,6 +35,10 @@ class Message(TypedDict):
 
     role: Literal["system", "user", "assistant", "tool"]
     content: str
+    name: str
+    tool_call_id: str
+    tool_calls: List[Dict[str, Any]]
+    event: Dict[str, Any]
 
 
 class BaseMemory(abc.ABC):
