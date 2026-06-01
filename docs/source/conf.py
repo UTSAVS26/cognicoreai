@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath("../../src"))
 
 project = "CogniCoreAI"
 copyright = "2025, Utsav Singhal"
-author = "Utsav Singhal`"
-release = "1.0.0"
+author = "Utsav Singhal"
+release = "2.0.0a1"
 
 
 # -- General configuration ---------------------------------------------------
@@ -39,7 +39,7 @@ exclude_patterns = []
 html_theme = "furo"
 
 # A path to a logo file
-html_logo = "_static/logo.png"
+html_logo = "_static/cognicoreai_logo.png"
 
 # Theme-specific options for light and dark mode
 html_theme_options = {

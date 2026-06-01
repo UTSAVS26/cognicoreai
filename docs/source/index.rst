@@ -66,6 +66,7 @@ Explore the documentation to learn more about how to use and extend CogniCoreAI.
    :caption: Documentation
 
    getting_started
+   v2_alpha
    user_guide/index
    how_to/index
    api_reference
